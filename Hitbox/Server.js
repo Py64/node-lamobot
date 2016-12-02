@@ -1,8 +1,14 @@
 const request = require('request')
 const logger = require('node-logger')
+const WebSocketClient = require('websocket').client
 
 module.exports = {
   Address: null,
+  WebsocketID: null,
+  Websocket: null,
+  SetAddress (Address) {
+    this.Address = Address
+  },
   Find (Callback) {
     request('https://api.hitbox.tv/chat/servers?redis=true', (err, resp, body) => {
       if (err || resp.statusCode !== 200) {
@@ -25,7 +31,32 @@ module.exports = {
       if (err) {
         return logger.error('Failed to get websocket ID from server', this.Address)
       }
-      return Callback(body.substring(0, body.indexOf(':')))
+      this.WebsocketID = body.substring(0, body.indexOf(':'))
+      return Callback(this.WebsocketID)
     })
+  },
+  ConnectWebsocket (Callback) {
+    this.Websocket = new WebSocketClient()
+    client.on('connectFailed', (error) => {
+      return Callback("WSFailed", error)
+    })
+    client.on('connect', (connection) => {
+      Callback("WSConnected", connection)
+      connection.on('error', (error) => {
+        Callback("WSError", error)
+      })
+      connection.on('close', () => {
+        Callback("WSClosed")
+      })
+      connection.on('message', (message) => {
+        if (message.type === 'utf8') {
+          JsonObject = JSON.parse(message.utf8Data)
+          this.Decode(JsonObject, Callback)
+        }
+      })
+    })
+  },
+  Decode (Response, Callback) {
+  }
   }
 }
