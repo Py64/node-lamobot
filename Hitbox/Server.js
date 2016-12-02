@@ -1,9 +1,9 @@
-const request = require("request"),
-      logger = require("node-logger")
+const request = require('request')
+const logger = require('node-logger')
 
 module.exports = {
   Address: null,
-  Find(Callback) {
+  Find (Callback) {
     request('https://api.hitbox.tv/chat/servers', (err, resp, body) => {
       if (err || resp.statusCode !== 200) {
         return logger.error('Could not find websocket server address.')
@@ -12,7 +12,7 @@ module.exports = {
       return Callback(this)
     })
   },
-  Call(Path, Callback) {
+  Call (Path, Callback) {
     request(this.Address + Path, (err, resp, body) => {
       if (err || resp.statusCode !== 200) {
         return Callback(null, true, resp)
@@ -20,7 +20,7 @@ module.exports = {
       return Callback(body, false, resp)
     })
   },
-  GetWebsocketID(Callback) {
+  GetWebsocketID (Callback) {
     this.Call('/socket.io/1/', (body, err, resp) => {
       if (err) {
         return Callback(null)
