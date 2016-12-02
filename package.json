@@ -1,0 +1,35 @@
+{
+  "name": "node-lamobot",
+  "version": "0.0.1",
+  "description": "Hitbox bot to feed llamas.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Py64/node-lamobot.git"
+  },
+  "keywords": [
+    "lamobot",
+    "lamy",
+    "llamabot",
+    "llama",
+    "panda",
+    "sianko",
+    "hitbox",
+    "bot"
+  ],
+  "author": "Py64",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Py64/node-lamobot/issues"
+  },
+  "homepage": "https://github.com/Py64/node-lamobot#readme",
+  "devDependencies": {
+    "eslint": "^3.11.1"
+  },
+  "dependencies": {
+    "request": "^2.79.0"
+  }
+}
