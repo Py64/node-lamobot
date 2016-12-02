@@ -1,6 +1,9 @@
 # Lamobot
 __Bot made to make feeding [llamas](https://lamy.cos.ovh) easier.__ *(via Hitbox)*
-[![David-DM](https://david-dm.org/Py64/node-lamobot.svg)](https://david-dm.org/Py64/node-lamobot)
+[![Code Climate](https://img.shields.io/codeclimate/github/Py64/node-lamobot.svg)]()
+[![GitHub issues](https://img.shields.io/github/issues/Py64/node-lamobot.svg)](https://github.com/Py64/node-lamobot/issues)
+[![David](https://img.shields.io/david/Py64/node-lamobot.svg)](https://david-dm.org/Py64/node-lamobot)
+[![David](https://img.shields.io/david/dev/Py64/node-lamobot.svg)](https://david-dm.org/Py64/node-lamobot)
 
 ## Dependencies
 * NodeJS v7.1.0
