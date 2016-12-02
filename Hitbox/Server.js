@@ -37,26 +37,23 @@ module.exports = {
   },
   ConnectWebsocket (Callback) {
     this.Websocket = new WebSocketClient()
-    client.on('connectFailed', (error) => {
-      return Callback("WSFailed", error)
+    this.Websocket.on('connectFailed', (error) => {
+      return Callback('WSFailed', error)
     })
-    client.on('connect', (connection) => {
-      Callback("WSConnected", connection)
+    this.Websocket.on('connect', (connection) => {
+      Callback('WSConnected', connection)
       connection.on('error', (error) => {
-        Callback("WSError", error)
+        Callback('WSError', error)
       })
       connection.on('close', () => {
-        Callback("WSClosed")
+        Callback('WSClosed')
       })
       connection.on('message', (message) => {
         if (message.type === 'utf8') {
-          JsonObject = JSON.parse(message.utf8Data)
-          this.Decode(JsonObject, Callback)
+          let JsonObject = JSON.parse(message.utf8Data)
+          Callback('Message', JsonObject)
         }
       })
     })
-  },
-  Decode (Response, Callback) {
-  }
   }
 }
