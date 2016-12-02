@@ -30,6 +30,7 @@
     "eslint": "^3.11.1"
   },
   "dependencies": {
-    "request": "^2.79.0"
+    "request": "^2.79.0",
+    "websocket": "^1.0.23"
   }
 }
