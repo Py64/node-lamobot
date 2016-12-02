@@ -1,7 +1,7 @@
 {
   "name": "node-lamobot",
   "version": "0.0.1",
-  "description": "Hitbox bot to feed llamas.",
+  "description": "Bot made to make feeding llamas easier with Hitbox.",
   "main": "index.js",
   "scripts": {
     "test": "standard"
@@ -30,6 +30,7 @@
     "standard": "^8.6.0"
   },
   "dependencies": {
+    "node-logger": "git+https://github.com/Py64/node-logger.git",
     "request": "^2.79.0",
     "websocket": "^1.0.23"
   }
