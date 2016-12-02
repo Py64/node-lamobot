@@ -11,7 +11,7 @@ __Bot made to make feeding [llamas](https://lamy.cos.ovh) easier.__ *(via Hitbox
 * NodeJS v7.1.0
 * Request v2.79.0
 * Websocket v1.0.23
-* [node-logger](https://github.com/Py64/node-logger.git) v1.0.0
+* [node-logger](https://github.com/Py64/node-logger.git) *latest*
 * Standard v8.6.0 *(dev)*
 
 ## Pull requests

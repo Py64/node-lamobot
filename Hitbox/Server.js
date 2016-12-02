@@ -6,18 +6,26 @@ module.exports = {
   Find(Callback) {
     request('https://api.hitbox.tv/chat/servers', (err, resp, body) => {
       if (err || resp.statusCode !== 200) {
-        return logger.error("Could not find websocket server address.")
+        return logger.error('Could not find websocket server address.')
       }
-      this.Address = JSON.parse(body)[0]["server_ip"]
+      this.Address = JSON.parse(body)[0]['server_ip']
       return Callback(this)
     })
   },
   Call(Path, Callback) {
     request(this.Address + Path, (err, resp, body) => {
       if (err || resp.statusCode !== 200) {
-        return logger.error("Call to", Path, "could not be finished.")
+        return Callback(null, true, resp)
       }
-      return Callback(body)
+      return Callback(body, false, resp)
+    })
+  },
+  GetWebsocketID(Callback) {
+    this.Call('/socket.io/1/', (body, err, resp) => {
+      if (err) {
+        return Callback(null)
+      }
+      return Callback(body.split(':')[0])
     })
   }
 }
