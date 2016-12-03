@@ -50,8 +50,16 @@ module.exports = {
       })
       connection.on('message', (message) => {
         if (message.type === 'utf8') {
-          let JsonObject = JSON.parse(message.utf8Data)
-          Callback('Message', JsonObject)
+          if (message.utf8Data == '2::') {
+            connection.sendUTF('2::')
+          } else if (message.utf8Data == '1::') {
+            Callback('LoggedIn', connection)
+          } else if (message.utf8Data.startsWith('5::::')) {
+            let JsonObject = JSON.parse(message.utf8Data)
+            Callback('Message', JsonObject, connection)
+          } else {
+            Callback('Unknown', message.utf8Data, connection)
+          }
         }
       })
     })

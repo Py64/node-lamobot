@@ -1,0 +1,14 @@
+{
+  "Channels": {
+    "channel1": {
+      "User": "User",
+      "Pass": "pass",
+      "Whispers": true
+    },
+    "channel2": {
+      "User": "User",
+      "Pass": "pass",
+      "Whispers": false
+    }
+  }
+}
