@@ -7,7 +7,11 @@ const config = require('./.lamobot.json')
 const chatarr = []
 
 function Handle(Event, Data, Chat) {
-  if (Event === 'Connected') {
+  if (Event === '!_READY') {
+    log.info("Opening a websocket connection for", Chat.Data.Channel)
+    Chat.Connect()
+  } else if (Event === 'Connected') {
+    log.info("Joining", Chat.Data.Channel)
     Chat.JoinChannel(Chat.Data.Channel, Chat.Data.User, Chat.Data.Token)
   } else if (Event === 'WrongWebsocketID') {
     log.error('Websocket for', Chat.Data.Channel, 'has wrong websocket id. Connection will be closed.')
@@ -37,13 +41,12 @@ for (let key in config.Channels) {
           log.warning('Failed to get websocket id for', creds['User'], 'so bot will not run on channel', key)
           return
         }
-        let chat = server.GetChat(Handle)
-        chat.Data = {
+        let Data = {
           Channel: key,
           User: creds['User'],
           Token: token
         }
-        chat.Connect()
+        let chat = server.GetChat(Handle, Data)
         chatarr.push(chat)
       })
     })
