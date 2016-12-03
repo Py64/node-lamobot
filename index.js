@@ -1,9 +1,11 @@
+'use strict'
 const ChatServer = require('./Hitbox/ChatServer.js')
 const Auth = require('./Hitbox/Auth.js')
+const LlamaAPI = require('./Llama/API.js')
 const log = require('node-logger')
 const config = require('./.lamobot.json')
-
 const chatarr = []
+const API = new LlamaAPI(config.API.Endpoint, config.API.Token)
 
 function Handle (Event, Data, Chat) {
   if (Event === '!_READY') {
@@ -17,17 +19,31 @@ function Handle (Event, Data, Chat) {
   } else if (Event === 'Message') {
     if (Data['method'] === 'loginMsg') {
       log.success('Channel', Chat.Data.Channel, 'joined successfuly.')
-    } else if (Data['method'] === 'chatMsg') {
-      if (Data['params']['name'].toLowerCase() !== Chat.Data.User.toLowerCase() ||
-          Data['params']['text'][0] === Chat.Data.Prefix) {
+    } else if (Data['method'] === 'chatMsg' || (Data['method'] === 'directMsg' && Chat.Data.Whispers)) {
+      let sender = Data['method'] === 'directMsg' ? Data['params']['from'] : Data['params']['name']
+      if (sender.toLowerCase() !== Chat.Data.User.toLowerCase() || Data['params']['text'][0] === Chat.Data.Prefix) {
         Data['params']['text'] = Data['params']['text'].substr(1)
         let CmdData = Data['params']['text'].split(' ')
         let Command = CmdData[0]
+        let Alias = Chat.Data.Aliases[Command]
+        if (Alias != null) Command = Alias
         if (Chat.Data.EnabledCmds.indexOf(Command) > -1) {
           CmdData.shift()
           let CommandData = CmdData.join(' ')
-          log.info('Command "' + Data['params']['text'] + '" executed on', Chat.Data.Channel, 'by', Data['params']['name'])
-          
+          log.info('Command "' + Data['params']['text'] + '" executed on', Chat.Data.Channel, 'by', sender)
+          if (Command === 'lamy') {
+            Chat.Reply(true, Data['method'] === 'directMsg', sender, Chat.Data.Messages[Command])
+          } else if (Command === 'sianko') {
+          } else if (Command === 'bambus') {
+          } else if (Command === 'lamogrosze') {
+            API.GetPoints(sender, (state) => {
+              if (state === false) {
+                Chat.Reply(true, Data['method'] === 'directMsg', sender, Chat.Data.Messages['502API'])
+                return
+              }
+              Chat.Reply(true, Data['method'] === 'directMsg', sender, 'masz', state, 'lamogroszy.')
+            })
+          }
         }
       }
     } else if (Data['method'] === 'loginMsg') {
@@ -71,7 +87,10 @@ for (let key in config.Channels) {
           Token: token,
           Prefix: creds['Prefix'],
           NameColor: creds['NameColor'],
-          EnabledCmds: creds['EnabledCommands']
+          EnabledCmds: creds['EnabledCommands'],
+          Aliases: creds['Aliases'],
+          Messages: creds['Messages'],
+          Whispers: creds['Whispers']
         }
         let chat = server.GetChat(Handle, Data)
         chatarr.push(chat)

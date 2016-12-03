@@ -1,3 +1,4 @@
+'use strict'
 const assert = require('assert')
 const ChatServer = require('../Hitbox/ChatServer.js')
 const auth = require('../Hitbox/Auth.js')

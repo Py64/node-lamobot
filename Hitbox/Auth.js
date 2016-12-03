@@ -1,3 +1,4 @@
+'use strict'
 const api = require('./API.js')
 const logger = require('node-logger')
 

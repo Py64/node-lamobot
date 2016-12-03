@@ -8,6 +8,7 @@ class Chat {
     this.Connection = null
     this.ChatServer = ChatServer
     this.Handler = Handler
+    this.MsgId = 0 // workaround: duplicate message
     this.Data = Data // store here everything else that may be required by handler
 
     if (this.ChatServer.PlainAddress == null) {
@@ -121,7 +122,8 @@ class Chat {
     logger.success('Left', this.Channel)
   }
 
-  SendMessage (...msg) {
+  SendMessage (me, ...msg) {
+    this.MsgId++ // workaround: duplicate message
     let Data = {
       method: 'chatMsg',
       params: {
@@ -130,12 +132,31 @@ class Chat {
         nameColor: this.NameColor
       }
     }
-    Data.params.text = msg.join(' ')
+    Data.params.text = msg.join(' ') + " #" + this.MsgId
+    if (me) Data.params.type = 'me'
+    this.Send(Data)
+  }
+  
+  Reply (me, isWhisper, User, ...msg) {
+    if (isWhisper) this.SendWhisper(User, '@' + User + ', ', ...msg)
+    else this.SendMessage(me, '@' + User + ', ', ...msg)
+  }
+  
+  SendWhisper (Receiver, ...msg) {
+    this.MsgId++ // workaround: duplicate message
+    let Data = {
+      method: 'directMsg',
+      params: {
+        channel: this.Channel,
+        from: this.Username,
+        nameColor: this.NameColor
+      }
+    }
+    Data.params.text = msg.join(' ') + " #" + this.MsgId
+    Data.params.to = Receiver
     console.dir(Data)
     this.Send(Data)
   }
-  SendMeMessage () {}
-  SendWhisper () {}
 }
 
 module.exports = Chat
