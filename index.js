@@ -2,6 +2,7 @@
 const ChatServer = require('./Hitbox/ChatServer.js')
 const Auth = require('./Hitbox/Auth.js')
 const LlamaAPI = require('./Llama/API.js')
+const HitboxAPI = require('./Hitbox/API.js')
 const log = require('node-logger')
 const config = require('./.lamobot.json')
 const util = require('util')
@@ -65,7 +66,7 @@ function Handle (Event, Data, Chat) {
               }
               if (response['result'] == 1) {
                 for (let id in chatarr) {
-                  chatarr[id].Reply(true, false, sender, util.format(chatarr[id].Data.Messages['PANDAS_FED'], response['count'], CommandData))
+                  chatarr[id].Reply(true, false, sender, util.format(chatarr[id].Data.Messages['LLAMAS_FED'], response['count'], CommandData))
                 }
               } else if (response['result'] == 2) {
                 Chat.Reply(true, Data['method'] === 'directMsg', sender, Chat.Data.Messages['LLAMAS_NOT_ENOUGH_POINTS'])
@@ -109,6 +110,11 @@ function Handle (Event, Data, Chat) {
     }
   } else if (Event === '!_CLOSED') {
     log.info('Connection closed for channel', Chat.Data.Channel)
+    ForEachChat((chat, id) => {
+      if (chat.Channel == Chat.Channel) {
+        chatarr.splice(id, 1)
+      }
+    })
   } else if (Event === 'Ping' || Event === '!_CONNECTED' || Data === '0::') {
     // drop event because it's not neccesary to handle it
   } else {
@@ -120,7 +126,7 @@ function Handle (Event, Data, Chat) {
 for (let key in config.Channels) {
   let creds = config.Channels[key]
   Auth.GetToken(creds['User'], creds['Pass'], (token) => {
-    if (token == null) {
+    if (token === false) {
       return log.error('Could not log in onto account', creds['User'], 'on channel', key)
     }
     log.success('Received token to account', creds['User'], 'which will run on channel', key)
@@ -163,17 +169,22 @@ const interval1 = setInterval(() => {
     IgnoreUsers.push(Chat.Username)
   })
   ForEachChat((Chat, id) => {
-    
-    try {
-      log.info("Sending announcement to", Chat.Channel)
-      Chat.SendMessage(true, Chat.Data.Messages['ANNOUNCEMENT'])
-      log.info("Switching points lock on", Chat.Channel)
-      chatarr[id].Data.GiveawayPoints = true
-      log.info("Fetching user list from", Chat.Channel)
-      Chat.GetUserList()
-    } catch(e) {}
+    HitboxAPI.Get('/user/' + Chat.Channel, (b, e, r) => {
+      if (!e) {
+        try {
+          log.info("Sending announcement to", Chat.Channel)
+          Chat.SendMessage(true, Chat.Data.Messages['ANNOUNCEMENT'])
+          if (JSON.parse(b)['is_live'] == '1') {
+              log.info("Switching points lock on", Chat.Channel)
+              chatarr[id].Data.GiveawayPoints = true
+              log.info("Fetching user list from", Chat.Channel)
+              Chat.GetUserList()
+          }
+        } catch(e) {}
+      }
+    })
   })
-}, 10000)
+}, 15*60*1000)
 
 function ForEachChat (Callback) {
   for (let id in chatarr) {

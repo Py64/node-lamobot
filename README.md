@@ -14,6 +14,11 @@ __Bot made to make feeding [llamas](https://lamy.cos.ovh) easier.__ *(via Hitbox
 * [node-logger](https://github.com/Py64/node-logger.git) *latest*
 * Standard v8.6.0 *(dev)*
 
+## Configuration
+The configuration is in json. More informations in documentation.
+
+Remember that there can be only one whispers bot per account.
+
 ## Pull requests
 Any pull request will be welcome.
 

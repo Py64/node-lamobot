@@ -9,10 +9,9 @@ module.exports = {
       }
       return Callback(body, false, resp)
     })
-  }
-  
+  },
   Get (Path, Callback) {
-    request.post({url: 'https://api.hitbox.tv' + Path, (err, resp, body) => {
+    request('https://api.hitbox.tv' + Path, (err, resp, body) => {
       if (err || resp.statusCode !== 200) {
         return Callback(body, true, resp)
       }

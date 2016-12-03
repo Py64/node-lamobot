@@ -1,14 +1,38 @@
 {
+  "API": {
+    "Endpoint": "llama api endpoint here",
+    "Token": "your token here"
+  },
   "Channels": {
-    "channel1": {
-      "User": "User",
-      "Pass": "pass",
-      "Whispers": true
-    },
-    "channel2": {
-      "User": "User",
-      "Pass": "pass",
-      "Whispers": false
+    "teo1611": {
+      "User": "botuser",
+      "Pass": "botpass",
+      "Whispers": true,
+      "Prefix": "!",
+      "NameColor": "D35C33",
+      "Messages": {
+        "lamy": "dostępne komendy: lamogrosze, sianko (siano), lamy (karmienie), bambus.",
+        "502API": "lamy wydają się być ciut zbyt niedostępne. Spróbuj później wysłać im ten list miłosny.",
+        "POINTS_RESPONSE": "masz %d lamogroszy.",
+        "SOMEONE_POINTS_RESPONSE": "%s ma %d lamogroszy.",
+        "PANDAS_FED": "dziękujemy za %d nakarmienie pand bambusem %s.",
+        "PANDAS_NOT_HUNGRY": "pandy nie są jeszcze głodne.",
+        "PANDAS_NOT_ENOUGH_POINTS": "jesteś zbyt biedny, by importować bambus.",
+        "LLAMAS_FED": "dziękujemy za %d nakarmienie lam siankiem %s.",
+        "LLAMAS_NOT_HUNGRY": "lamy nie są głodne.",
+        "LLAMAS_NOT_ENOUGH_POINTS": "jesteś zbyt biedny, by móc nakarmić te majestatyczne stworzenia.",
+        "ANNOUNCEMENT": "Lamy głodują już od kilku lat. Wtrąć do ich żołądków swoje trzy grosze karmiąc je. Więcej szczegółów pod !lamy."
+      },
+      "EnabledCommands": [
+        "bambus",
+        "sianko",
+        "lamogrosze",
+        "lamy"
+      ],
+      "Aliases": {
+        "karmienie": "lamy",
+        "siano": "sianko"
+      }
     }
   }
 }
