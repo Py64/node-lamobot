@@ -6,6 +6,17 @@ const config = require('./.lamobot.json')
 
 const chatarr = []
 
+function Handle(Event, Data, Chat) {
+  if (Event === 'Connected') {
+    Chat.JoinChannel(Chat.Data.Channel, Chat.Data.User, Chat.Data.Token)
+  } else if (Event === 'WrongWebsocketID') {
+    log.error('Websocket for', Chat.Data.Channel, 'has wrong websocket id. Connection will be closed.')
+  } else {
+    console.dir(Event)
+    console.dir(Data)
+  }
+}
+
 for (let key in config.Channels) {
   let creds = config.Channels[key]
   Auth.GetToken(creds['User'], creds['Pass'], (token) => {
@@ -14,6 +25,27 @@ for (let key in config.Channels) {
     }
     log.success('Received token to account', creds['User'], 'which will run on channel', key)
     let server = new ChatServer()
-    
+    log.info('Finding server for', creds['User'], 'which will run on', key)
+    server.Find((server) => {
+      if (server === false) {
+        log.warning('Failed to find a server for', creds['User'], 'so bot will not run on channel', key)
+        return
+      }
+      log.info('Getting websocket id for', creds['User'], 'which will run on', key)
+      server.GetWebsocketID((server) => {
+        if (server === false) {
+          log.warning('Failed to get websocket id for', creds['User'], 'so bot will not run on channel', key)
+          return
+        }
+        let chat = server.GetChat(Handle)
+        chat.Data = {
+          Channel: key,
+          User: creds['User'],
+          Token: token
+        }
+        chat.Connect()
+        chatarr.push(chat)
+      })
+    })
   })
 }

@@ -31,7 +31,8 @@ class ChatServer {
       if (err || resp.statusCode !== 200) {
         return Callback(logger.error('Could not find websocket server address.'))
       }
-      this.Address = 'https://' + JSON.parse(body)[0]['server_ip']
+      this.PlainAddress = JSON.parse(body)[0]['server_ip']
+      this.Address = 'https://' + this.PlainAddress
       return Callback(this)
     })
   }
@@ -52,7 +53,9 @@ class ChatServer {
       if (err) {
         return Callback(logger.error('Failed to get websocket ID from server', this.Address))
       }
+      logger.info(body)
       this.WebsocketID = body.substring(0, body.indexOf(':'))
+      logger.info(this.WebsocketID)
       return Callback(this)
     })
   }

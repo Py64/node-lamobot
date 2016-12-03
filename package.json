@@ -33,7 +33,7 @@
   "dependencies": {
     "node-logger": "git+https://github.com/Py64/node-logger.git",
     "request": "^2.79.0",
-    "websocket": "^1.0.23"
+    "ws": "^1.1.1"
   },
   "standard": {
     "ignore": [
