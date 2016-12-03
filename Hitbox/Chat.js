@@ -121,7 +121,7 @@ class Chat {
     this.Connection.close()
     logger.success('Left', this.Channel)
   }
-  
+
   // Gets user list
   GetUserList () {
     this.Send({
@@ -144,11 +144,11 @@ class Chat {
         nameColor: this.NameColor
       }
     }
-    Data.params.text = msg.join(' ') + " #" + this.MsgId
+    Data.params.text = msg.join(' ') + ' #' + this.MsgId
     if (me) Data.params.type = 'me'
     this.Send(Data)
   }
-  
+
   // Sends message with prefix "@<user>, "
   // me - sends /me message
   // isWhisper - sends whisper if true
@@ -156,7 +156,7 @@ class Chat {
     if (isWhisper) this.SendWhisper(User, '@' + User + ', ', ...msg)
     else this.SendMessage(me, '@' + User + ', ', ...msg)
   }
-  
+
   // Sends direct message
   SendWhisper (Receiver, ...msg) {
     this.MsgId++ // workaround: duplicate message
@@ -168,7 +168,7 @@ class Chat {
         nameColor: this.NameColor
       }
     }
-    Data.params.text = msg.join(' ') + " #" + this.MsgId
+    Data.params.text = msg.join(' ') + ' #' + this.MsgId
     Data.params.to = Receiver
     console.dir(Data)
     this.Send(Data)
