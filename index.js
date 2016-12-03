@@ -32,15 +32,15 @@ function Handle (Event, Data, Chat) {
           if (Data['params']['data']['user'].indexOf(key) > -1 || Data['params']['data']['isSubscriber'].indexOf(key) > -1 || Data['params']['data']['admin'].indexOf(key) > -1) {
             points++
           }
-          if (Math.floor(Math.random() * 100) == 99) {
+          if (Math.floor(Math.random() * 100) === 99) {
             points++
-            log.info("Wow!", username, "will earn extra point today!")
+            log.info('Wow!', username, 'will earn extra point today!')
           }
           log.info('Giving', points, 'to', username, 'for being on', Chat.Channel, 'and locking his/her wallet to the end of this giveaway')
           IgnoreUsers.push(username)
           API.GivePoints(username, points, (err) => {
-            if (err === '1 err' || err === false) log.warning("Failed to give", username, "his/her points.")
-            else log.success(username, "received his points.")
+            if (err === '1 err' || err === false) log.warning('Failed to give', username, 'his/her points.')
+            else log.success(username, 'received his points.')
           })
         }
       }
@@ -64,13 +64,13 @@ function Handle (Event, Data, Chat) {
                 Chat.Reply(true, Data['method'] === 'directMsg', sender, Chat.Data.Messages['502API'])
                 return
               }
-              if (response['result'] == 1) {
+              if (response['result'] === 1) {
                 for (let id in chatarr) {
                   chatarr[id].Reply(true, false, sender, util.format(chatarr[id].Data.Messages['LLAMAS_FED'], response['count'], CommandData))
                 }
-              } else if (response['result'] == 2) {
+              } else if (response['result'] === 2) {
                 Chat.Reply(true, Data['method'] === 'directMsg', sender, Chat.Data.Messages['LLAMAS_NOT_ENOUGH_POINTS'])
-              } else if (response['result'] == 3) {
+              } else if (response['result'] === 3) {
                 Chat.Reply(true, Data['method'] === 'directMsg', sender, Chat.Data.Messages['LLAMAS_NOT_HUNGRY'])
               }
             })
@@ -80,24 +80,24 @@ function Handle (Event, Data, Chat) {
                 Chat.Reply(true, Data['method'] === 'directMsg', sender, Chat.Data.Messages['502API'])
                 return
               }
-              if (response['result'] == 1) {
+              if (response['result'] === 1) {
                 for (let id in chatarr) {
                   chatarr[id].Reply(true, false, sender, util.format(chatarr[id].Data.Messages['PANDAS_FED'], response['count'], CommandData))
                 }
-              } else if (response['result'] == 2) {
+              } else if (response['result'] === 2) {
                 Chat.Reply(true, Data['method'] === 'directMsg', sender, Chat.Data.Messages['PANDAS_NOT_ENOUGH_POINTS'])
-              } else if (response['result'] == 3) {
+              } else if (response['result'] === 3) {
                 Chat.Reply(true, Data['method'] === 'directMsg', sender, Chat.Data.Messages['PANDAS_NOT_HUNGRY'])
               }
             })
           } else if (Command === 'lamogrosze') {
-            let user = CommandData.length == 0 ? sender : CommandData
+            let user = CommandData.length === 0 ? sender : CommandData
             API.GetPoints(user, (state) => {
               if (state === false) {
                 Chat.Reply(true, Data['method'] === 'directMsg', sender, Chat.Data.Messages['502API'])
                 return
               }
-              if (user == sender) Chat.Reply(true, Data['method'] === 'directMsg', sender, util.format(Chat.Data.Messages['POINTS_RESPONSE'], state))
+              if (user === sender) Chat.Reply(true, Data['method'] === 'directMsg', sender, util.format(Chat.Data.Messages['POINTS_RESPONSE'], state))
               else Chat.Reply(true, Data['method'] === 'directMsg', sender, util.format(Chat.Data.Messages['SOMEONE_POINTS_RESPONSE'], user, state))
             })
           }
@@ -111,7 +111,7 @@ function Handle (Event, Data, Chat) {
   } else if (Event === '!_CLOSED') {
     log.info('Connection closed for channel', Chat.Data.Channel)
     ForEachChat((chat, id) => {
-      if (chat.Channel == Chat.Channel) {
+      if (chat.Channel === Chat.Channel) {
         chatarr.splice(id, 1)
       }
     })
@@ -172,19 +172,19 @@ const interval1 = setInterval(() => {
     HitboxAPI.Get('/user/' + Chat.Channel, (b, e, r) => {
       if (!e) {
         try {
-          log.info("Sending announcement to", Chat.Channel)
+          log.info('Sending announcement to', Chat.Channel)
           Chat.SendMessage(true, Chat.Data.Messages['ANNOUNCEMENT'])
-          if (JSON.parse(b)['is_live'] == '1') {
-              log.info("Switching points lock on", Chat.Channel)
-              chatarr[id].Data.GiveawayPoints = true
-              log.info("Fetching user list from", Chat.Channel)
-              Chat.GetUserList()
+          if (JSON.parse(b)['is_live'] === '1') {
+            log.info('Switching points lock on', Chat.Channel)
+            chatarr[id].Data.GiveawayPoints = true
+            log.info('Fetching user list from', Chat.Channel)
+            Chat.GetUserList()
           }
-        } catch(e) {}
+        } catch (e) {}
       }
     })
   })
-}, 15*60*1000)
+}, 900000)
 
 function ForEachChat (Callback) {
   for (let id in chatarr) {
