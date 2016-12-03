@@ -53,7 +53,7 @@ class Chat {
         */
         this.Connection.send('2::')
         this.Handler('Ping', null, this)
-      } else if (message.utf8Data === '1::') {
+      } else if (message === '1::') {
         /*
           Forward event sent when connected successfuly.
         */
@@ -67,8 +67,10 @@ class Chat {
         /*
           Forward chat event sent when for example someone sent a message,
           subscribed, has been banned, left or sent a whisper.
+          
+          Handler receives only args of message.
         */
-        this.Handler('Message', JSON.parse(message.substr(4)), this)
+        this.Handler('Message', JSON.parse(JSON.parse(message.substr(4))['args'][0]), this)
       } else {
         /*
           Forward unknown message.
@@ -84,45 +86,43 @@ class Chat {
   Send (Json) {
     this.Connection.send('5:::' + JSON.stringify({name: 'message', args: Json}))
   }
-  
+
   /*
-    Join channel 
+    Join channel
   */
   JoinChannel (Channel, Username, Token, NoBacklog = true) {
     this.Token = Token
     this.Username = Username
     this.Channel = Channel
+    this.NoBacklog = NoBacklog
     this.Send({
       method: 'joinChannel',
       params: {
-        channel: Channel,
-        name: Username,
-        token: Token,
-        hideBuffered: NoBacklog
+        channel: this.Channel,
+        name: this.Username,
+        token: this.Token,
+        hideBuffered: this.NoBacklog
       }
     })
   }
-  
+
   /*
     Leave channel (logout)
   */
-  Leave (Username) {
+  Leave () {
     this.Send({
       method: 'partChannel',
       params: {
-        channel: Channel,
-        name: Username,
-        token: Token,
-        hideBuffered: NoBacklog
+        name: this.Username
       }
     })
     this.Connection.close()
+    log.success('Left', this.Channel)
   }
-  
-  SendMessage (Path, Callback) {}
-  SendMeMessage (Path, Callback) {}
-  SendWhisper (Path, Callback) {}
-  IfWhisper (Message, MessageCallback, WhisperCallback) {}
+
+  SendMessage () {}
+  SendMeMessage () {}
+  SendWhisper () {}
 }
 
 module.exports = Chat
