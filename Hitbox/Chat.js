@@ -67,7 +67,7 @@ class Chat {
         /*
           Forward chat event sent when for example someone sent a message,
           subscribed, has been banned, left or sent a whisper.
-          
+
           Handler receives only args of message.
         */
         this.Handler('Message', JSON.parse(JSON.parse(message.substr(4))['args'][0]), this)
@@ -84,16 +84,17 @@ class Chat {
     Sends a JSON to the server.
   */
   Send (Json) {
-    this.Connection.send('5:::' + JSON.stringify({name: 'message', args: Json}))
+    this.Connection.send('5:::' + JSON.stringify({name: 'message', args: [Json]}))
   }
 
   /*
     Join channel
   */
-  JoinChannel (Channel, Username, Token, NoBacklog = true) {
+  JoinChannel (Channel, Username, Token, NameColor, NoBacklog = true) {
     this.Token = Token
     this.Username = Username
     this.Channel = Channel
+    this.NameColor = NameColor
     this.NoBacklog = NoBacklog
     this.Send({
       method: 'joinChannel',
@@ -117,10 +118,22 @@ class Chat {
       }
     })
     this.Connection.close()
-    log.success('Left', this.Channel)
+    logger.success('Left', this.Channel)
   }
 
-  SendMessage () {}
+  SendMessage (...msg) {
+    let Data = {
+      method: 'chatMsg',
+      params: {
+        channel: this.Channel,
+        name: this.Username,
+        nameColor: this.NameColor
+      }
+    }
+    Data.params.text = msg.join(' ')
+    console.dir(Data)
+    this.Send(Data)
+  }
   SendMeMessage () {}
   SendWhisper () {}
 }

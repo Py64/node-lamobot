@@ -11,17 +11,24 @@ function Handle (Event, Data, Chat) {
     Chat.Connect()
   } else if (Event === 'Connected') {
     log.info('Joining', Chat.Data.Channel)
-    Chat.JoinChannel(Chat.Data.Channel, Chat.Data.User, Chat.Data.Token)
+    Chat.JoinChannel(Chat.Data.Channel, Chat.Data.User, Chat.Data.Token, Chat.Data.NameColor)
   } else if (Event === 'WrongWebsocketID') {
     log.error('Websocket for', Chat.Data.Channel, 'has wrong websocket id. Connection will be closed.')
   } else if (Event === 'Message') {
     if (Data['method'] === 'loginMsg') {
       log.success('Channel', Chat.Data.Channel, 'joined successfuly.')
     } else if (Data['method'] === 'chatMsg') {
-      if (Data['params']['text'][0] === Chat.Data.Prefix) {
+      if (Data['params']['name'].toLowerCase() !== Chat.Data.User.toLowerCase() ||
+          Data['params']['text'][0] === Chat.Data.Prefix) {
         Data['params']['text'] = Data['params']['text'].substr(1)
-        log.info('Command "' + Data['params']['text'] + '" executed on', Chat.Data.Channel, 'by', Data['params']['name'])
-        Chat.SendMessage(Data['params']['text'], 'trigerred.')
+        let CmdData = Data['params']['text'].split(' ')
+        let Command = CmdData[0]
+        if (Chat.Data.EnabledCmds.indexOf(Command) > -1) {
+          CmdData.shift()
+          let CommandData = CmdData.join(' ')
+          log.info('Command "' + Data['params']['text'] + '" executed on', Chat.Data.Channel, 'by', Data['params']['name'])
+          
+        }
       }
     } else if (Data['method'] === 'loginMsg') {
       log.success('Channel', Chat.Data.Channel, 'joined successfuly.')
@@ -62,7 +69,9 @@ for (let key in config.Channels) {
           Channel: key,
           User: creds['User'],
           Token: token,
-          Prefix: creds['Prefix']
+          Prefix: creds['Prefix'],
+          NameColor: creds['NameColor'],
+          EnabledCmds: creds['EnabledCommands']
         }
         let chat = server.GetChat(Handle, Data)
         chatarr.push(chat)
