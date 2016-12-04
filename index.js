@@ -173,7 +173,7 @@ const interval1 = setInterval(() => {
     IgnoreUsers.push(Chat.Username)
   })
   ForEachChat((Chat, id) => {
-    HitboxAPI.Get('/user/' + Chat.Channel, (b, e, r) => {
+    HitboxAPI.Get(`/user/${Chat.Channel}`, (b, e, r) => {
       if (!e) {
         try {
           log.info('Sending announcement to', Chat.Channel)
