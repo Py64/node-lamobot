@@ -182,7 +182,9 @@ const interval1 = setInterval(() => {
             log.info('Fetching user list from', Chat.Channel)
             Chat.GetUserList()
           }
-        } catch (e) {}
+        } catch (e) {
+          return // stop execution if connection has closed
+        }
       }
     })
   })
@@ -199,7 +201,7 @@ function DisconnectAll () {
     try {
       chat.Leave()
     } catch (e) {
-      return
+      return // stop executing this callback if chat.Leave() failed
     }
   })
   clearInterval(interval1)
