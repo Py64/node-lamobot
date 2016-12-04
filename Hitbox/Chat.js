@@ -144,7 +144,7 @@ class Chat {
         nameColor: this.NameColor
       }
     }
-    Data.params.text = msg.join(' ') + ' #' + this.MsgId
+    Data.params.text = `${msg.join(' ')} #${this.MsgId}`
     if (me) Data.params.type = 'me'
     this.Send(Data)
   }
@@ -153,8 +153,8 @@ class Chat {
   // me - sends /me message
   // isWhisper - sends whisper if true
   Reply (me, isWhisper, User, ...msg) {
-    if (isWhisper) this.SendWhisper(User, '@' + User + ', ', ...msg)
-    else this.SendMessage(me, '@' + User + ', ', ...msg)
+    if (isWhisper) this.SendWhisper(User, `@${User}, %{...msg}`)
+    else this.SendMessage(me, `@${User}, %{...msg}`)
   }
 
   // Sends direct message
@@ -168,7 +168,7 @@ class Chat {
         nameColor: this.NameColor
       }
     }
-    Data.params.text = msg.join(' ') + ' #' + this.MsgId
+    Data.params.text = `${msg.join(' ')} #${this.MsgId}`
     Data.params.to = Receiver
     console.dir(Data)
     this.Send(Data)
