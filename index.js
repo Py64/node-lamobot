@@ -125,43 +125,45 @@ function Handle (Event, Data, Chat) {
   }
 }
 
-for (let key in config.Channels) {
-  let creds = config.Channels[key]
-  Auth.GetToken(creds['User'], creds['Pass'], (token) => {
-    if (token === false) {
-      return log.error('Could not log in onto account', creds['User'], 'on channel', key)
+function AuthTokenReceived(key, creds, token) {
+  if (token === false) {
+    return log.error('Could not log in onto account', creds['User'], 'on channel', key)
+  }
+  log.success('Received token to account', creds['User'], 'which will run on channel', key)
+  let server = new ChatServer()
+  log.info('Finding server for', creds['User'], 'which will run on', key)
+  server.Find((server) => {
+    if (server === false) {
+      log.warning('Failed to find a server for', creds['User'], 'so bot will not run on channel', key)
+      return
     }
-    log.success('Received token to account', creds['User'], 'which will run on channel', key)
-    let server = new ChatServer()
-    log.info('Finding server for', creds['User'], 'which will run on', key)
-    server.Find((server) => {
+    log.info('Getting websocket id for', creds['User'], 'which will run on', key)
+    server.GetWebsocketID((server) => {
       if (server === false) {
-        log.warning('Failed to find a server for', creds['User'], 'so bot will not run on channel', key)
+        log.warning('Failed to get websocket id for', creds['User'], 'so bot will not run on channel', key)
         return
       }
-      log.info('Getting websocket id for', creds['User'], 'which will run on', key)
-      server.GetWebsocketID((server) => {
-        if (server === false) {
-          log.warning('Failed to get websocket id for', creds['User'], 'so bot will not run on channel', key)
-          return
-        }
-        let Data = {
-          Channel: key,
-          User: creds['User'],
-          Token: token,
-          Prefix: creds['Prefix'],
-          NameColor: creds['NameColor'],
-          EnabledCmds: creds['EnabledCommands'],
-          Aliases: creds['Aliases'],
-          Messages: creds['Messages'],
-          Whispers: creds['Whispers'],
-          GiveawayPoints: false
-        }
-        let chat = server.GetChat(Handle, Data)
-        chatarr.push(chat)
-      })
+      let Data = {
+        Channel: key,
+        User: creds['User'],
+        Token: token,
+        Prefix: creds['Prefix'],
+        NameColor: creds['NameColor'],
+        EnabledCmds: creds['EnabledCommands'],
+        Aliases: creds['Aliases'],
+        Messages: creds['Messages'],
+        Whispers: creds['Whispers'],
+        GiveawayPoints: false
+      }
+      let chat = server.GetChat(Handle, Data)
+      chatarr.push(chat)
     })
   })
+}
+
+for (let key in config.Channels) {
+  let creds = config.Channels[key]
+  Auth.GetToken(creds['User'], creds['Pass'], (token) => AuthTokenReceived.bind(key, creds))
 }
 
 const interval1 = setInterval(() => {
