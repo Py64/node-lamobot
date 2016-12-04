@@ -32,7 +32,7 @@ class ChatServer {
         return Callback(logger.error('Could not find websocket server address.'))
       }
       this.PlainAddress = JSON.parse(body)[0]['server_ip']
-      this.Address = 'http://' + this.PlainAddress // always use http or the websocket id will be rejected
+      this.Address = `https://${this.PlainAddress}` // always use http or the websocket id will be rejected
       return Callback(this)
     })
   }

@@ -10,11 +10,6 @@ const chatarr = []
 const API = new LlamaAPI(config.API.Endpoint, config.API.Token)
 let IgnoreUsers = []
 
-function GivePointsCallback (username, points, err) {
-  if (err === '1 err' || err === false) log.warning('Failed to give', username, 'his/her points.')
-  else log.success(username, 'received his points.')
-}
-
 function Handle (Event, Data, Chat) {
   if (Event === '!_READY') {
     log.info('Opening a websocket connection for', Chat.Data.Channel)
@@ -43,7 +38,10 @@ function Handle (Event, Data, Chat) {
           }
           log.info('Giving', points, 'to', username, 'for being on', Chat.Channel, 'and locking his/her wallet to the end of this giveaway')
           IgnoreUsers.push(username)
-          API.GivePoints(username, points, (err) => GivePointsCallback.bind(username, points))
+          API.GivePoints(username, points, (err) => {
+            if (err === '1 err' || err === false) log.warning('Failed to give', username, 'his/her points.')
+            else log.success(username, 'received his points.')
+          })
         }
       }
     } else if (Data['method'] === 'chatMsg' || (Data['method'] === 'directMsg' && Chat.Data.Whispers)) {
@@ -125,11 +123,12 @@ function Handle (Event, Data, Chat) {
   }
 }
 
-function AuthTokenReceived(key, creds, token) {
+function AuthTokenReceived(key, creds, next, token) {
   if (token === false) {
     return log.error('Could not log in onto account', creds['User'], 'on channel', key)
   }
   log.success('Received token to account', creds['User'], 'which will run on channel', key)
+  next()
   let server = new ChatServer()
   log.info('Finding server for', creds['User'], 'which will run on', key)
   server.Find((server) => {
@@ -161,10 +160,22 @@ function AuthTokenReceived(key, creds, token) {
   })
 }
 
-Object.keys(config.Channels).forEach((key) => {
+let async = {}
+async.forEach = function(o, cb) {
+  let id = 0,
+     keys = Object.keys(o);
+  let next = function() {
+    if (id < keys.length) cb(keys[id++], next);
+  };
+  next();
+};
+
+async.forEach(config.Channels, (key, next) => {
   let creds = config.Channels[key]
-  Auth.GetToken(creds['User'], creds['Pass'], (token) => AuthTokenReceived.bind(key, creds))
-})
+  Auth.GetToken(creds['User'], creds['Pass'], (token) => {
+    AuthTokenReceived(key, creds, next, token)
+  })
+});
 
 const interval1 = setInterval(() => {
   // Announcement & point giving

@@ -36,7 +36,7 @@ class Chat {
     Creates a websocket connection to the chat server.
   */
   Connect () {
-    this.Connection = new WebSocket('ws://' + this.ChatServer.PlainAddress + '/socket.io/1/websocket/' + this.ChatServer.WebsocketID)
+    this.Connection = new WebSocket(`wss://${this.ChatServer.PlainAddress}/socket.io/1/websocket/${this.ChatServer.WebsocketID}`)
     this.Connection.on('error', (error) => {
       return this.Handler('!_INTERRUPT', error, this)
     })
@@ -85,7 +85,7 @@ class Chat {
     Sends a JSON to the server.
   */
   Send (Json) {
-    this.Connection.send('5:::' + JSON.stringify({name: 'message', args: [Json]}))
+    this.Connection.send(`5:::${JSON.stringify({name: 'message', args: [Json]})}`)
   }
 
   /*

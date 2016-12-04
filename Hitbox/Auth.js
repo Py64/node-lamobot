@@ -4,7 +4,7 @@ const logger = require('node-logger')
 
 module.exports = {
   GetUser (Username, Password, Callback) {
-    api.Call('/auth/login', {'login': Username, 'pass': Password, 'app': 'desktop'}, (body, err, resp) => {
+    api.Call('/auth/login', {login: Username, pass: Password, app: 'desktop'}, (body, err, resp) => {
       if (err) {
         return logger.error('Failed to get user', Username)
       }
