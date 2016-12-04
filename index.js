@@ -193,7 +193,7 @@ const interval1 = setInterval(() => {
 }, 900000)
 
 function ForEachChat (Callback) {
-  for (let id in chatarr) {
+  for (let i = 0; i<chatarr.length; i++) {
     Callback(chatarr[id], id)
   }
 }
