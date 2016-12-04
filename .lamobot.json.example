@@ -1,7 +1,8 @@
 {
   "API": {
     "Endpoint": "llama api endpoint here",
-    "Token": "your token here"
+    "Token": "your token here",
+    "WebhookSecret": "your secret here"
   },
   "Channels": {
     "teo1611": {

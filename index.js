@@ -2,6 +2,7 @@
 const ChatServer = require('./Hitbox/ChatServer.js')
 const Auth = require('./Hitbox/Auth.js')
 const LlamaAPI = require('./Llama/API.js')
+const Webhook = require('./Llama/Webhook.js')
 const HitboxAPI = require('./Hitbox/API.js')
 const log = require('node-logger')
 const config = require('./.lamobot.json')
@@ -203,6 +204,14 @@ const interval1 = setInterval(() => {
   })
 }, 900000)
 
+function HandleWebhook (Data) {
+  console.dir(Data)
+}
+
+log.info('Setting up webhook handler...')
+const WebhookHandler = new Webhook(config.API.WebhookSecret, HandleWebhook)
+log.success('Set up webhook.')
+
 function ForEachChat (Callback) {
   for (let id = 0; id < chatarr.length; id++) {
     Callback(chatarr[id], id)
@@ -210,6 +219,7 @@ function ForEachChat (Callback) {
 }
 
 function DisconnectAll () {
+  clearInterval(interval1)
   ForEachChat((chat, id) => {
     try {
       chat.Leave()
@@ -217,7 +227,7 @@ function DisconnectAll () {
       return // stop executing this callback if chat.Leave() failed
     }
   })
-  clearInterval(interval1)
+  WebhookHandler.Http.close()
 }
 
 process.on('exit', DisconnectAll)

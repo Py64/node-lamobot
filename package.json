@@ -32,6 +32,8 @@
     "standard": "^8.6.0"
   },
   "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
     "node-logger": "git+https://github.com/Py64/node-logger.git",
     "request": "^2.79.0",
     "ws": "^1.1.1"
