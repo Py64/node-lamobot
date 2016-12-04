@@ -30,7 +30,7 @@ function Handle (Event, Data, Chat) {
     } else if (Data['method'] === 'userList') {
       if (Chat.Data.GiveawayPoints) {
         log.success('Received', Chat.Channel, '\'s user list.')
-        for (let key in Data['params']['data']['isFollower']) {
+        for (let key = 0; key < Data['params']['data']['isFollower'].length; key++) {
           let username = Data['params']['data']['isFollower'][key]
           if (IgnoreUsers.indexOf(username) > -1) continue
           let points = 2
@@ -193,7 +193,7 @@ const interval1 = setInterval(() => {
 }, 900000)
 
 function ForEachChat (Callback) {
-  for (let i = 0; i<chatarr.length; i++) {
+  for (let id = 0; id<chatarr.length; id++) {
     Callback(chatarr[id], id)
   }
 }
