@@ -57,7 +57,7 @@ function Handle (Event, Data, Chat) {
         if (Chat.Data.EnabledCmds.indexOf(Command) > -1) {
           CmdData.shift()
           let CommandData = CmdData.join(' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
-          log.info('Command "' + Data['params']['text'] + '" executed on', Chat.Data.Channel, 'by', sender)
+          log.info(`Command "${Data['params']['text']}" executed on`, Chat.Data.Channel, 'by', sender)
           if (Command === 'lamy') {
             Chat.Reply(true, Data['method'] === 'directMsg', sender, Chat.Data.Messages[Command])
           } else if (Command === 'sianko') {
