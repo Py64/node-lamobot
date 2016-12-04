@@ -11,7 +11,7 @@ class Chat {
     this.MsgId = 0 // workaround: duplicate message
     this.Data = Data // store here everything else that may be required by handler
 
-    if (this.ChatServer.PlainAddress == null) {
+    if (this.ChatServer.PlainAddress === null) {
       /*
         Recreate ChatServer object.
         However, you should create ChatServer object before you construct Chat.
@@ -21,11 +21,11 @@ class Chat {
       this.ChatServer = new ChatServerClass(() => {
         this.Handler('!_READY', null, this)
       }, true)
-    } else if (this.ChatServer.WebsocketID == null) {
+    } else if (this.ChatServer.WebsocketID === null) {
       // Get websocket ID if it's null. However, this may delay READY event.
       logger.warn('Websocket ID should be found before you initialize Chat object.')
-      this.ChatServer.GetWebsocketID(() => {
-        this.Handler('!_READY', null, this)
+      this.ChatServer.GetWebsocketID((s) => {
+        if (s !== false) this.Handler('!_READY', null, this)
       })
     } else {
       this.Handler('!_READY', null, this)
