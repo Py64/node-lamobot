@@ -67,7 +67,7 @@ function Handle (Event, Data, Chat) {
                 return
               }
               if (response['result'] === 1) {
-                for (let id in chatarr) {
+                for (let id = 0; id < chatarr.length; id++) {
                   chatarr[id].Reply(true, false, sender, util.format(chatarr[id].Data.Messages['LLAMAS_FED'], response['count'], CommandData))
                 }
               } else if (response['result'] === 2) {
@@ -83,7 +83,7 @@ function Handle (Event, Data, Chat) {
                 return
               }
               if (response['result'] === 1) {
-                for (let id in chatarr) {
+                for (let id = 0; id < chatarr.length; id++) {
                   chatarr[id].Reply(true, false, sender, util.format(chatarr[id].Data.Messages['PANDAS_FED'], response['count'], CommandData))
                 }
               } else if (response['result'] === 2) {
@@ -161,10 +161,10 @@ function AuthTokenReceived(key, creds, token) {
   })
 }
 
-for (let key in config.Channels) {
+Object.keys(config.Channels).forEach((key) => {
   let creds = config.Channels[key]
   Auth.GetToken(creds['User'], creds['Pass'], (token) => AuthTokenReceived.bind(key, creds))
-}
+})
 
 const interval1 = setInterval(() => {
   // Announcement & point giving
