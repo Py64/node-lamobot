@@ -10,6 +10,11 @@ const chatarr = []
 const API = new LlamaAPI(config.API.Endpoint, config.API.Token)
 let IgnoreUsers = []
 
+function GivePointsCallback (username, points, err) {
+  if (err === '1 err' || err === false) log.warning('Failed to give', username, 'his/her points.')
+  else log.success(username, 'received his points.')
+}
+
 function Handle (Event, Data, Chat) {
   if (Event === '!_READY') {
     log.info('Opening a websocket connection for', Chat.Data.Channel)
@@ -38,10 +43,7 @@ function Handle (Event, Data, Chat) {
           }
           log.info('Giving', points, 'to', username, 'for being on', Chat.Channel, 'and locking his/her wallet to the end of this giveaway')
           IgnoreUsers.push(username)
-          API.GivePoints(username, points, (err) => {
-            if (err === '1 err' || err === false) log.warning('Failed to give', username, 'his/her points.')
-            else log.success(username, 'received his points.')
-          })
+          API.GivePoints(username, points, (err) => GivePointsCallback.bind(username, points))
         }
       }
     } else if (Data['method'] === 'chatMsg' || (Data['method'] === 'directMsg' && Chat.Data.Whispers)) {
@@ -51,7 +53,7 @@ function Handle (Event, Data, Chat) {
         let CmdData = Data['params']['text'].split(' ')
         let Command = CmdData[0].toLowerCase()
         let Alias = Chat.Data.Aliases[Command]
-        if (Alias != null) Command = Alias
+        if (Alias !== null) Command = Alias
         if (Chat.Data.EnabledCmds.indexOf(Command) > -1) {
           CmdData.shift()
           let CommandData = CmdData.join(' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
