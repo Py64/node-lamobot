@@ -198,7 +198,9 @@ function DisconnectAll () {
   ForEachChat((chat, id) => {
     try {
       chat.Leave()
-    } catch (e) {}
+    } catch (e) {
+      return
+    }
   })
   clearInterval(interval1)
 }
