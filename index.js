@@ -123,7 +123,7 @@ function Handle (Event, Data, Chat) {
   }
 }
 
-function AuthTokenReceived(key, creds, next, token) {
+function AuthTokenReceived (key, creds, next, token) {
   if (token === false) {
     return log.error('Could not log in onto account', creds['User'], 'on channel', key)
   }
@@ -161,21 +161,21 @@ function AuthTokenReceived(key, creds, next, token) {
 }
 
 let async = {}
-async.forEach = function(o, cb) {
-  let id = 0,
-     keys = Object.keys(o);
-  let next = function() {
-    if (id < keys.length) cb(keys[id++], next);
-  };
-  next();
-};
+async.forEach = (o, cb) => {
+  let id = 0
+  let keys = Object.keys(o)
+  let next = () => {
+    if (id < keys.length) cb(keys[id++], next)
+  }
+  next()
+}
 
 async.forEach(config.Channels, (key, next) => {
   let creds = config.Channels[key]
   Auth.GetToken(creds['User'], creds['Pass'], (token) => {
     AuthTokenReceived(key, creds, next, token)
   })
-});
+})
 
 const interval1 = setInterval(() => {
   // Announcement & point giving
@@ -204,7 +204,7 @@ const interval1 = setInterval(() => {
 }, 900000)
 
 function ForEachChat (Callback) {
-  for (let id = 0; id<chatarr.length; id++) {
+  for (let id = 0; id < chatarr.length; id++) {
     Callback(chatarr[id], id)
   }
 }
