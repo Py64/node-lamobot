@@ -15,9 +15,15 @@ class Webhook {
       this.Server.use(bodyParser.json())
     }
     this.Server.post('/webhook/', (req, res) => {
-      console.dir(req.body)
-      res.writeHead(200, {'Content-Type': 'text/html'});
-      res.end('thanks');
+      if (req.body.Token === this.VerificationToken) {
+        res.writeHead(200)
+        res.end()
+        res.body.Token = true
+        this.Callback(res.body)
+      } else {
+        res.writeHead(500)
+        res.end('Internal server error')
+      }
     })
     if (ExpressServer === null) {
       this.Http = this.Server.listen(Port)
