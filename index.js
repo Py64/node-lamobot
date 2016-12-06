@@ -45,6 +45,18 @@ function Handle (Event, Data, Chat) {
           })
         }
       }
+    } else if (Data['method'] === 'infoMsg') {
+      if (Data['params']['subscriber'] !== null && typeof(Data['params']['subscriber']) !== undefined) {
+        log.success(Data['params']['subscriber'], 'subscribed', Chat.Channel)
+        Chat.SendMessage(util.format(Chat.Data.Messages['SUBSCRIBED'], Data['params']['subscriber']))
+        API.GivePoints(Data['params']['subscriber'], 25, (err) => {
+          if (err === '1 err' || err === false) log.warning('Failed to give', Data['params']['subscriber'], 'his/her points.')
+          else {
+            log.success(Data['params']['subscriber'], 'received his points for the subscription.')
+            Chat.Whisper(Data['params']['subscriber'], 'dziękujemy Ci za subskrypcję kanału ${Chat.Channel}! Otrzymujesz w zamian dodatkowe 25 lamogroszy!')
+          }
+        })
+      }
     } else if (Data['method'] === 'chatMsg' || (Data['method'] === 'directMsg' && Chat.Data.Whispers)) {
       let sender = Data['method'] === 'directMsg' ? Data['params']['from'] : Data['params']['name']
       if (sender.toLowerCase() !== Chat.Data.User.toLowerCase() || Data['params']['text'][0] === Chat.Data.Prefix) {
@@ -104,8 +116,6 @@ function Handle (Event, Data, Chat) {
           }
         }
       }
-    } else if (Data['method'] === 'loginMsg') {
-      log.success('Channel', Chat.Data.Channel, 'joined successfuly.')
     } else {
       log.warning('Caught unimplemented message:', Data)
     }
