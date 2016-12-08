@@ -153,8 +153,8 @@ class Chat {
   // me - sends /me message
   // isWhisper - sends whisper if true
   Reply (me, isWhisper, User, ...msg) {
-    if (isWhisper) this.SendWhisper(User, `@${User}, %{...msg}`)
-    else this.SendMessage(me, `@${User}, %{...msg}`)
+    if (isWhisper) this.SendWhisper(User, `@${User},`, ...msg)
+    else this.SendMessage(me, `@${User},`, ...msg)
   }
 
   // Sends direct message

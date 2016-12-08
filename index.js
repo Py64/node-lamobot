@@ -10,6 +10,7 @@ const util = require('util')
 const chatarr = []
 const API = new LlamaAPI(config.API.Endpoint, config.API.Token)
 let IgnoreUsers = []
+let WriteChanges = false
 
 function Handle (Event, Data, Chat) {
   if (Event === '!_READY') {
@@ -29,6 +30,7 @@ function Handle (Event, Data, Chat) {
         for (let key = 0; key < Data['params']['data']['isFollower'].length; key++) {
           let username = Data['params']['data']['isFollower'][key]
           if (IgnoreUsers.indexOf(username) > -1) continue
+          WriteChanges = true
           let points = 2
           if (Data['params']['data']['user'].indexOf(key) > -1 || Data['params']['data']['isSubscriber'].indexOf(key) > -1 || Data['params']['data']['admin'].indexOf(key) > -1) {
             points++
@@ -46,7 +48,7 @@ function Handle (Event, Data, Chat) {
         }
       }
     } else if (Data['method'] === 'infoMsg') {
-      if (typeof(Data['params']['subscriber']) !== undefined) {
+      if (typeof(Data['params']['subscriber']) !== 'undefined') {
         log.success(Data['params']['subscriber'], 'subscribed', Chat.Channel)
         Chat.SendMessage(util.format(Chat.Data.Messages['SUBSCRIBED'], Data['params']['subscriber']))
         API.GivePoints(Data['params']['subscriber'], 25, (err) => {
@@ -64,7 +66,7 @@ function Handle (Event, Data, Chat) {
         let CmdData = Data['params']['text'].split(' ')
         let Command = CmdData[0].toLowerCase()
         let Alias = Chat.Data.Aliases[Command]
-        if (typeof Alias !== undefined) Command = Alias
+        if (typeof Alias !== 'undefined') Command = Alias
         if (Chat.Data.EnabledCmds.indexOf(Command) > -1) {
           CmdData.shift()
           let CommandData = CmdData.join(' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
@@ -189,6 +191,7 @@ async.forEach(config.Channels, (key, next) => {
 })
 
 const interval1 = setInterval(() => {
+  if (WriteChanges)API.Call ("write", {}, ()=>{}, false)
   // Announcement & point giving
   IgnoreUsers = []
   ForEachChat((Chat, id) => {
