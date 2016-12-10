@@ -191,7 +191,7 @@ async.forEach(config.Channels, (key, next) => {
 })
 
 const interval1 = setInterval(() => {
-  if (WriteChanges)API.Call ("write", {}, ()=>{}, false)
+  if (WriteChanges)API.Call ("write", {}, ()=>{
   // Announcement & point giving
   IgnoreUsers = []
   ForEachChat((Chat, id) => {
@@ -215,6 +215,7 @@ const interval1 = setInterval(() => {
       }
     })
   })
+  }, false)
 }, 900000)
 
 function HandleWebhook (Data) {
