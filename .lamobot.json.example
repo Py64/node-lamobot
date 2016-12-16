@@ -8,6 +8,8 @@
     "teo1611": {
       "User": "botuser",
       "Pass": "botpass",
+      "Interval": 30,
+      "PointsInterval": 15,
       "Whispers": true,
       "Prefix": "!",
       "NameColor": "D35C33",

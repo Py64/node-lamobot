@@ -12,6 +12,18 @@ const API = new LlamaAPI(config.API.Endpoint, config.API.Token)
 let IgnoreUsers = []
 let WriteChanges = false
 
+let Intervals = []
+
+let async = {}
+async.forEach = (o, cb) => {
+  let id = 0
+  let keys = Object.keys(o)
+  let next = () => {
+    if (id < keys.length) cb(keys[id++], next)
+  }
+  next()
+}
+
 function Handle (Event, Data, Chat) {
   if (Event === '!_READY') {
     log.info('Opening a websocket connection for', Chat.Data.Channel)
@@ -141,7 +153,6 @@ function AuthTokenReceived (key, creds, next, token) {
     return log.error('Could not log in onto account', creds['User'], 'on channel', key)
   }
   log.success('Received token to account', creds['User'], 'which will run on channel', key)
-  next()
   let server = new ChatServer()
   log.info('Finding server for', creds['User'], 'which will run on', key)
   server.Find((server) => {
@@ -169,18 +180,42 @@ function AuthTokenReceived (key, creds, next, token) {
       }
       let chat = server.GetChat(Handle, Data)
       chatarr.push(chat)
+      Intervals.push(setInterval(() => {
+        // Announcement
+        ForEachChat((Chat, id) => {
+          log.info('Sending announcement to', Chat.Channel)
+          Chat.SendMessage(true, Chat.Data.Messages['ANNOUNCEMENT'])
+        })
+      }, creds['Interval']*60000))
+      Intervals.push(setInterval(() => {
+        // Flush changes
+        if (WriteChanges)API.Call ("write", {}, ()=>{
+          // Pointsgiving
+          IgnoreUsers = []
+          ForEachChat((Chat, id) => {
+            IgnoreUsers.push(Chat.Username)
+          })
+          ForEachChat((Chat, id) => {
+            HitboxAPI.Get(`/user/${Chat.Channel}`, (b, e, r) => {
+              if (!e) {
+                try {
+                  if (JSON.parse(b)['is_live'] === '1') {
+                    log.info('Switching points lock on', Chat.Channel)
+                    chatarr[id].Data.GiveawayPoints = true
+                    log.info('Fetching user list from', Chat.Channel)
+                    Chat.GetUserList()
+                  }
+                } catch (e) {
+                  return // stop execution if connection has closed
+                }
+              }
+            })
+          })
+        }, false)
+      }, creds['PointsInterval']*60000))
+      next()
     })
   })
-}
-
-let async = {}
-async.forEach = (o, cb) => {
-  let id = 0
-  let keys = Object.keys(o)
-  let next = () => {
-    if (id < keys.length) cb(keys[id++], next)
-  }
-  next()
 }
 
 async.forEach(config.Channels, (key, next) => {
@@ -189,34 +224,6 @@ async.forEach(config.Channels, (key, next) => {
     AuthTokenReceived(key, creds, next, token)
   })
 })
-
-const interval1 = setInterval(() => {
-  if (WriteChanges)API.Call ("write", {}, ()=>{
-  // Announcement & point giving
-  IgnoreUsers = []
-  ForEachChat((Chat, id) => {
-    IgnoreUsers.push(Chat.Username)
-  })
-  ForEachChat((Chat, id) => {
-    HitboxAPI.Get(`/user/${Chat.Channel}`, (b, e, r) => {
-      if (!e) {
-        try {
-          log.info('Sending announcement to', Chat.Channel)
-          Chat.SendMessage(true, Chat.Data.Messages['ANNOUNCEMENT'])
-          if (JSON.parse(b)['is_live'] === '1') {
-            log.info('Switching points lock on', Chat.Channel)
-            chatarr[id].Data.GiveawayPoints = true
-            log.info('Fetching user list from', Chat.Channel)
-            Chat.GetUserList()
-          }
-        } catch (e) {
-          return // stop execution if connection has closed
-        }
-      }
-    })
-  })
-  }, false)
-}, 900000)
 
 function HandleWebhook (Data) {
   console.dir(Data)
