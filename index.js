@@ -180,39 +180,33 @@ function AuthTokenReceived (key, creds, next, token) {
       }
       let chat = server.GetChat(Handle, Data)
       chatarr.push(chat)
-      Intervals.push(setInterval(() => {
+      Intervals.push(setInterval(function (Chat) {
         // Announcement
-        ForEachChat((Chat, id) => {
-          log.info('Sending announcement to', Chat.Channel)
-          Chat.SendMessage(true, Chat.Data.Messages['ANNOUNCEMENT'])
-        })
-      }, creds['Interval']*60000))
-      Intervals.push(setInterval(() => {
+        log.info('Sending announcement to', Chat.Channel)
+        Chat.SendMessage(true, Chat.Data.Messages['ANNOUNCEMENT'])
+      }.bind(null, chat), creds['Interval']*60000))
+      Intervals.push(setInterval(function (Chat) {
         // Flush changes
         if (WriteChanges)API.Call ("write", {}, ()=>{
           // Pointsgiving
           IgnoreUsers = []
-          ForEachChat((Chat, id) => {
-            IgnoreUsers.push(Chat.Username)
-          })
-          ForEachChat((Chat, id) => {
-            HitboxAPI.Get(`/user/${Chat.Channel}`, (b, e, r) => {
-              if (!e) {
-                try {
-                  if (JSON.parse(b)['is_live'] === '1') {
-                    log.info('Switching points lock on', Chat.Channel)
-                    chatarr[id].Data.GiveawayPoints = true
-                    log.info('Fetching user list from', Chat.Channel)
-                    Chat.GetUserList()
-                  }
-                } catch (e) {
-                  return // stop execution if connection has closed
+          IgnoreUsers.push(Chat.Username)
+          HitboxAPI.Get(`/user/${Chat.Channel}`, (b, e, r) => {
+            if (!e) {
+              try {
+                if (JSON.parse(b)['is_live'] === '1') {
+                  log.info('Switching points lock on', Chat.Channel)
+                  Chat.Data.GiveawayPoints = true
+                  log.info('Fetching user list from', Chat.Channel)
+                  Chat.GetUserList()
                 }
+              } catch (e) {
+                return // stop execution if connection has closed
               }
-            })
+            }
           })
         }, false)
-      }, creds['PointsInterval']*60000))
+      }.bind(null, chat), creds['PointsInterval']*60000))
       next()
     })
   })
