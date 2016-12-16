@@ -35,6 +35,33 @@ function Handle (Event, Data, Chat) {
     log.error('Websocket for', Chat.Data.Channel, 'has wrong websocket id. Connection will be closed.')
   } else if (Event === 'Message') {
     if (Data['method'] === 'loginMsg') {
+      Intervals.push(setInterval(function (Chat) {
+        // Announcement
+        log.info('Sending announcement to', Chat.Channel)
+        Chat.SendMessage(true, Chat.Data.Messages['ANNOUNCEMENT'])
+      }.bind(null, chat), creds['Interval']*60000))
+      Intervals.push(setInterval(function (Chat) {
+        // Flush changes
+        if (WriteChanges)API.Call ("write", {}, ()=>{
+          // Pointsgiving
+          IgnoreUsers = []
+          IgnoreUsers.push(Chat.Username)
+          HitboxAPI.Get(`/user/${Chat.Channel}`, (b, e, r) => {
+            if (!e) {
+              try {
+                if (JSON.parse(b)['is_live'] === '1') {
+                  log.info('Switching points lock on', Chat.Channel)
+                  Chat.Data.GiveawayPoints = true
+                  log.info('Fetching user list from', Chat.Channel)
+                  Chat.GetUserList()
+                }
+              } catch (e) {
+                return // stop execution if connection has closed
+              }
+            }
+          })
+        }, false)
+      }.bind(null, chat), creds['PointsInterval']*60000))
       log.success('Channel', Chat.Channel, 'joined successfuly.')
     } else if (Data['method'] === 'userList') {
       if (Chat.Data.GiveawayPoints) {
@@ -180,33 +207,6 @@ function AuthTokenReceived (key, creds, next, token) {
       }
       let chat = server.GetChat(Handle, Data)
       chatarr.push(chat)
-      Intervals.push(setInterval(function (Chat) {
-        // Announcement
-        log.info('Sending announcement to', Chat.Channel)
-        Chat.SendMessage(true, Chat.Data.Messages['ANNOUNCEMENT'])
-      }.bind(null, chat), creds['Interval']*60000))
-      Intervals.push(setInterval(function (Chat) {
-        // Flush changes
-        if (WriteChanges)API.Call ("write", {}, ()=>{
-          // Pointsgiving
-          IgnoreUsers = []
-          IgnoreUsers.push(Chat.Username)
-          HitboxAPI.Get(`/user/${Chat.Channel}`, (b, e, r) => {
-            if (!e) {
-              try {
-                if (JSON.parse(b)['is_live'] === '1') {
-                  log.info('Switching points lock on', Chat.Channel)
-                  Chat.Data.GiveawayPoints = true
-                  log.info('Fetching user list from', Chat.Channel)
-                  Chat.GetUserList()
-                }
-              } catch (e) {
-                return // stop execution if connection has closed
-              }
-            }
-          })
-        }, false)
-      }.bind(null, chat), creds['PointsInterval']*60000))
       next()
     })
   })
