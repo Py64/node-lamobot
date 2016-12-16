@@ -39,7 +39,7 @@ function Handle (Event, Data, Chat) {
         // Announcement
         log.info('Sending announcement to', Chat.Channel)
         Chat.SendMessage(true, Chat.Data.Messages['ANNOUNCEMENT'])
-      }.bind(null, Chat), creds['Interval']*60000))
+      }.bind(null, Chat), Chat.Data.Interval*60000))
       Intervals.push(setInterval(function (Chat) {
         // Flush changes
         if (WriteChanges)API.Call ("write", {}, ()=>{
@@ -61,7 +61,7 @@ function Handle (Event, Data, Chat) {
             }
           })
         }, false)
-      }.bind(null, Chat), creds['PointsInterval']*60000))
+      }.bind(null, Chat), Chat.Data.PointsInterval*60000))
       log.success('Channel', Chat.Channel, 'joined successfuly.')
     } else if (Data['method'] === 'userList') {
       if (Chat.Data.GiveawayPoints) {
@@ -202,6 +202,8 @@ function AuthTokenReceived (key, creds, next, token) {
         EnabledCmds: creds['EnabledCommands'],
         Aliases: creds['Aliases'],
         Messages: creds['Messages'],
+        PointsInterval: creds['PointsInterval'],
+        Interval: creds['Interval'],
         Whispers: creds['Whispers'],
         GiveawayPoints: false
       }
