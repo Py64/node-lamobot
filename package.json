@@ -1,6 +1,6 @@
 {
   "name": "node-lamobot",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Bot made to make feeding llamas easier with Hitbox.",
   "main": "index.js",
   "scripts": {

@@ -54,6 +54,11 @@ function Handle (Event, Data, Chat) {
                   Chat.Data.GiveawayPoints = true
                   log.info('Fetching user list from', Chat.Channel)
                   Chat.GetUserList()
+                  API.GivePoints(Chat.Channel, 3, (err) => {
+                    if (err === '1 err' || err === false) log.warning('Failed to give', username, 'his/her points.')
+                    else log.success(username, 'received his points.')
+                    next()
+                  })
                 }
               } catch (e) {
                 return // stop execution if connection has closed
