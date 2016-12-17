@@ -68,7 +68,7 @@ function Handle (Event, Data, Chat) {
     } else if (Data['method'] === 'userList') {
       if (Chat.Data.GiveawayPoints) {
         log.success('Received', Chat.Channel, '\'s user list.')
-        for (let key = 0; key < Data['params']['data']['isFollower'].length; key++) {
+        async.forEach(Data['params']['data']['isFollower'], (key, next) => {
           let username = Data['params']['data']['isFollower'][key]
           if (IgnoreUsers.indexOf(username) > -1) continue
           WriteChanges = true
@@ -85,8 +85,9 @@ function Handle (Event, Data, Chat) {
           API.GivePoints(username, points, (err) => {
             if (err === '1 err' || err === false) log.warning('Failed to give', username, 'his/her points.')
             else log.success(username, 'received his points.')
+          next()
           })
-        }
+        })
       }
     } else if (Data['method'] === 'infoMsg') {
       if (typeof(Data['params']['subscriber']) !== 'undefined') {
