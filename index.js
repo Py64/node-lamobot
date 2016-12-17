@@ -42,7 +42,7 @@ function Handle (Event, Data, Chat) {
       }.bind(null, Chat), Chat.Data.Interval*60000))
       Intervals.push(setInterval(function (Chat) {
         // Flush changes
-        if (WriteChanges)API.Call ("write", {}, ()=>{
+        function callback (Chat) {
           // Pointsgiving
           IgnoreUsers = []
           IgnoreUsers.push(Chat.Username)
@@ -60,7 +60,9 @@ function Handle (Event, Data, Chat) {
               }
             }
           })
-        }, false)
+        }
+        if (WriteChanges)API.Call ("write", {}, callback.bind(null, Chat), false)
+        else callback(Chat)
       }.bind(null, Chat), Chat.Data.PointsInterval*60000))
       log.success('Channel', Chat.Channel, 'joined successfuly.')
     } else if (Data['method'] === 'userList') {
