@@ -70,7 +70,10 @@ function Handle (Event, Data, Chat) {
         log.success('Received', Chat.Channel, '\'s user list.')
         async.forEach(Data['params']['data']['isFollower'], (key, next) => {
           let username = Data['params']['data']['isFollower'][key]
-          if (IgnoreUsers.indexOf(username) > -1) continue
+          if (IgnoreUsers.indexOf(username) > -1) {
+            next()
+            return
+          }
           WriteChanges = true
           let points = 2
           if (Data['params']['data']['user'].indexOf(key) > -1 || Data['params']['data']['isSubscriber'].indexOf(key) > -1 || Data['params']['data']['admin'].indexOf(key) > -1) {
