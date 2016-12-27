@@ -8,3 +8,5 @@ services:
      - ./.lamobot.json:/node-lamobot/.lamobot.json
     networks:
       - lamy
+networks:
+  lamy:
