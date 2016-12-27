@@ -5,7 +5,7 @@ services:
     build: .
     command: node /node-lamobot/index.js
     volumes:
-     - ./.lamobot.json:/node-lamobot/.lamobot.json
+     - ./.lamobot.json:/node-lamobot/.lamobot.json:ro
     networks:
       - lamy
 networks:
