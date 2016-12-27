@@ -1,0 +1,10 @@
+version: "2"
+
+services:
+  lamobot:
+    build: .
+    command: node /node-lamobot/index.js
+    volumes:
+     - ./config.json:/node-lamobot/config.json
+    networks:
+      - lamy
