@@ -3,6 +3,8 @@ const logger = require('node-logger')
 const express = require('express')
 const bodyParser = require('body-parser')
 
+logger.warning("DEPRECATED MODULE (Webhook.js). PLEASE STOP USING IT ASAP")
+
 class Webhook {
   // Webhooks are always sent if someone feeds llama/panda.
   constructor (VerificationToken, Callback, ExpressServer = null, Port = 80) {

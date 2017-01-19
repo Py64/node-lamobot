@@ -13,40 +13,57 @@ class API {
   // Sends POST request to the API server.
   // Returns false if API unaccessible.
   Call (Method, Data, Callback, ReturnJSON = true) {
-    Data.rak = this.Token
-    request.post({url: this.Endpoint + Method, headers: {'content-type': 'application/x-www-form-urlencoded'}, body: querystring.stringify(Data)}, (err, resp, body) => {
+    request.post({url: this.Endpoint + Method, headers: {'Authorization': this.Token, 'content-type': 'application/x-www-form-urlencoded'}, body: querystring.stringify(Data)}, (err, resp, body) => {
       if (err || resp.statusCode !== 200) {
         return Callback(false)
       }
-      if (body === '3 wrong api key') return Callback(false)
+      if (body === '{"error":4}' || body === '{"error":5}') return Callback(false)
+      if (ReturnJSON) body = JSON.parse(body)
+      return Callback(body)
+    })
+  }
+  
+  // Sends GET request to the API server.
+  // Returns false if API unaccessible.
+  CallGET (Method, Callback, ReturnJSON = true) {
+    request.get({url: this.Endpoint + Method}, (err, resp, body) => {
+      if (err || resp.statusCode !== 200) {
+        return Callback(false)
+      }
+      if (body === '{"error":4}') return Callback(false)
       if (ReturnJSON) body = JSON.parse(body)
       return Callback(body)
     })
   }
 
-  // Returns amount of user's points.
-  GetPoints (User, Callback) {
-    this.Call('/points', {user: User}, Callback, false)
+  // Returns JSON object of user.
+  // Contains multiplier and points.
+  GetUser (User, Callback) {
+    this.CallGET('/user/get/' + User, (user) => {
+      if (!(user === null || typeof user === 'undefined') || user === false) {
+        Callback(user)
+      }
+    }, true)
   }
 
   // Feeds llamas. User pays.
   // Uses Call function to communicate with API.
-  // If bot has no SUPER flag or user has not authorized the application, server will force bot's name.
-  // Returns JSON object containing result and count (current fed llamas amount).
+  // Your bot must have be trusted by the user (only if you don't have MASTER permission).
+  // Returns JSON object containing error code and count as result (current hay amounts).
   // Result can have three values:
-  //   1: success,
-  //   2: not enough points
-  //   3: time between last fed llama and now has not passed yet
+  //   0: success,
+  //   1: not enough points
+  //   2: time between last fed llama and now has not passed yet
+  //   3: invalid request
   FeedLlamas (User, Ingredient, Callback) {
-    this.Call('/llama', {user: User, ingredient: Ingredient}, Callback)
+    this.Call('/feed/llama/as/' + User, {comment: Ingredient}, Callback)
   }
 
   // Feeds pandas. User pays.
   // Uses Call function to communicate with API.
-  // If bot has no SUPER flag or user has not authorized the application, server will force bot's name.
-  // Returns JSON object containing result (same as in FeedLlamas case) and count (current fed llamas amount).
+  // Your bot must have be trusted by the user (only if you don't have MASTER permission).
   FeedPandas (User, Ingredient, Callback) {
-    this.Call('/panda', {user: User, ingredient: Ingredient}, Callback)
+    this.Call('/feed/panda/as/' + User, {comment: Ingredient}, Callback)
   }
 
   // Gives points.

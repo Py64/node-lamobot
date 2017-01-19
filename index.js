@@ -78,6 +78,7 @@ function Handle (Event, Data, Chat) {
             next()
             return
           }
+          /* REWRITE REQUIRED
           WriteChanges = true
           let points = 2
           if (Data['params']['data']['user'].indexOf(key) > -1 || Data['params']['data']['isSubscriber'].indexOf(key) > -1 || Data['params']['data']['admin'].indexOf(key) > -1) {
@@ -94,6 +95,7 @@ function Handle (Event, Data, Chat) {
             else log.success(username, 'received his points.')
           next()
           })
+          */
         })
       }
     } else if (Data['method'] === 'infoMsg') {
@@ -104,7 +106,7 @@ function Handle (Event, Data, Chat) {
           if (err === '1 err' || err === false) log.warning('Failed to give', Data['params']['subscriber'], 'his/her points.')
           else {
             log.success(Data['params']['subscriber'], 'received his points for the subscription.')
-            Chat.Whisper(Data['params']['subscriber'], 'dziękujemy Ci za subskrypcję kanału ${Chat.Channel}! Otrzymujesz w zamian dodatkowe 25 lamogroszy!')
+            Chat.Whisper(Data['params']['subscriber'], 'lamy o dziwo postanowiły ci dziękować za wsparcie streamera.')
           }
         })
       }
@@ -128,13 +130,14 @@ function Handle (Event, Data, Chat) {
                 Chat.Reply(true, Data['method'] === 'directMsg', sender, Chat.Data.Messages['502API'])
                 return
               }
-              if (response['result'] === 1) {
+              console.log(response)
+              if (response['error'] === 0) {
                 for (let id = 0; id < chatarr.length; id++) {
-                  chatarr[id].Reply(true, false, sender, util.format(chatarr[id].Data.Messages['LLAMAS_FED'], response['count'], CommandData))
+                  chatarr[id].Reply(true, false, sender, util.format(chatarr[id].Data.Messages['LLAMAS_FED'], response['result'], CommandData))
                 }
-              } else if (response['result'] === 2) {
+              } else if (response['error'] === 1) {
                 Chat.Reply(true, Data['method'] === 'directMsg', sender, Chat.Data.Messages['LLAMAS_NOT_ENOUGH_POINTS'])
-              } else if (response['result'] === 3) {
+              } else if (response['error'] === 2) {
                 Chat.Reply(true, Data['method'] === 'directMsg', sender, Chat.Data.Messages['LLAMAS_NOT_HUNGRY'])
               }
             })
@@ -144,25 +147,25 @@ function Handle (Event, Data, Chat) {
                 Chat.Reply(true, Data['method'] === 'directMsg', sender, Chat.Data.Messages['502API'])
                 return
               }
-              if (response['result'] === 1) {
+              if (response['error'] === 0) {
                 for (let id = 0; id < chatarr.length; id++) {
-                  chatarr[id].Reply(true, false, sender, util.format(chatarr[id].Data.Messages['PANDAS_FED'], response['count'], CommandData))
+                  chatarr[id].Reply(true, false, sender, util.format(chatarr[id].Data.Messages['PANDAS_FED'], response['result'], CommandData))
                 }
-              } else if (response['result'] === 2) {
+              } else if (response['error'] === 1) {
                 Chat.Reply(true, Data['method'] === 'directMsg', sender, Chat.Data.Messages['PANDAS_NOT_ENOUGH_POINTS'])
-              } else if (response['result'] === 3) {
+              } else if (response['error'] === 2) {
                 Chat.Reply(true, Data['method'] === 'directMsg', sender, Chat.Data.Messages['PANDAS_NOT_HUNGRY'])
               }
             })
           } else if (Command === 'lamogrosze') {
             let user = CommandData.length === 0 ? sender : CommandData
-            API.GetPoints(user, (state) => {
-              if (state === false) {
+            API.GetUser(user, (userobject) => {
+              if (userobject === false) {
                 Chat.Reply(true, Data['method'] === 'directMsg', sender, Chat.Data.Messages['502API'])
                 return
               }
-              if (user === sender) Chat.Reply(true, Data['method'] === 'directMsg', sender, util.format(Chat.Data.Messages['POINTS_RESPONSE'], state))
-              else Chat.Reply(true, Data['method'] === 'directMsg', sender, util.format(Chat.Data.Messages['SOMEONE_POINTS_RESPONSE'], user, state))
+              if (user === sender) Chat.Reply(true, Data['method'] === 'directMsg', sender, util.format(Chat.Data.Messages['POINTS_RESPONSE'], userobject['points']))
+              else Chat.Reply(true, Data['method'] === 'directMsg', sender, util.format(Chat.Data.Messages['SOMEONE_POINTS_RESPONSE'], user, userobject['points']))
             })
           }
         }
@@ -178,7 +181,7 @@ function Handle (Event, Data, Chat) {
       }
     })
   } else if (Event === 'Ping' || Event === '!_CONNECTED' || Data === '0::') {
-    // drop event because it's not neccesary to handle it
+    // drop event as it's not neccesary to handle it
   } else {
     log.warning('Caught unimplemented event:', Event)
     log.warning('Dump:', Data)
@@ -231,14 +234,6 @@ async.forEach(config.Channels, (key, next) => {
   })
 })
 
-function HandleWebhook (Data) {
-  console.dir(Data)
-}
-
-log.info('Setting up webhook handler...')
-const WebhookHandler = new Webhook(config.API.WebhookSecret, HandleWebhook)
-log.success('Set up webhook.')
-
 function ForEachChat (Callback) {
   for (let id = 0; id < chatarr.length; id++) {
     Callback(chatarr[id], id)
@@ -254,7 +249,6 @@ function DisconnectAll () {
       return // stop executing this callback if chat.Leave() failed
     }
   })
-  WebhookHandler.Http.close()
 }
 
 process.on('exit', DisconnectAll)
