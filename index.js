@@ -10,7 +10,6 @@ const util = require('util')
 const chatarr = []
 const API = new LlamaAPI(config.API.Endpoint, config.API.Token)
 let IgnoreUsers = []
-let WriteChanges = false
 
 let Intervals = []
 
@@ -53,9 +52,8 @@ function Handle (Event, Data, Chat) {
                   log.info('Switching points lock on', Chat.Channel)
                   Chat.Data.GiveawayPoints = true
                   log.info('Fetching user list from', Chat.Channel)
-                  API.GivePoints(Chat.Channel, 3, (err) => {
-                    if (err === '1 err' || err === false) log.warning('Failed to give', Chat.Channel, 'his/her points.')
-                    else log.success(Chat.Channel, 'received his points.')
+                  API.GivePoints(Chat.Channel, true, (res) => {
+                    log.success(`${Chat.Channel} received his points and now has ${res['points']}.`)
                     Chat.GetUserList()
                   })
                 }
@@ -65,8 +63,7 @@ function Handle (Event, Data, Chat) {
             }
           })
         }
-        if (WriteChanges)API.Call ("write", {}, callback.bind(null, Chat), false)
-        else callback(Chat)
+        callback(Chat)
       }.bind(null, Chat), Chat.Data.PointsInterval*60000))
       log.success('Channel', Chat.Channel, 'joined successfuly.')
     } else if (Data['method'] === 'userList') {
@@ -78,36 +75,22 @@ function Handle (Event, Data, Chat) {
             next()
             return
           }
-          /* REWRITE REQUIRED
-          WriteChanges = true
-          let points = 2
-          if (Data['params']['data']['user'].indexOf(key) > -1 || Data['params']['data']['isSubscriber'].indexOf(key) > -1 || Data['params']['data']['admin'].indexOf(key) > -1) {
-            points++
-          }
-          if (Math.floor(Math.random() * 100) === 99) {
-            points++
-            log.info('Wow!', username, 'will earn extra point today!')
-          }
-          log.info('Giving', points, 'to', username, 'for being on', Chat.Channel, 'and locking his/her wallet to the end of this giveaway')
+          let subscriber = Data['params']['data']['user'].indexOf(key) > -1 || Data['params']['data']['isSubscriber'].indexOf(key) > -1 || Data['params']['data']['admin'].indexOf(key) > -1
+          log.info('Giving points to', username, 'for being on', Chat.Channel, 'and locking his/her wallet to the end of this giveaway')
           IgnoreUsers.push(username)
-          API.GivePoints(username, points, (err) => {
-            if (err === '1 err' || err === false) log.warning('Failed to give', username, 'his/her points.')
-            else log.success(username, 'received his points.')
+          API.GivePoints(username, subscriber, (res) => {
+            log.success(`${username} received his points (current: ${res['points']}).`)
           next()
           })
-          */
         })
       }
     } else if (Data['method'] === 'infoMsg') {
       if (typeof(Data['params']['subscriber']) !== 'undefined') {
         log.success(Data['params']['subscriber'], 'subscribed', Chat.Channel)
         Chat.SendMessage(util.format(Chat.Data.Messages['SUBSCRIBED'], Data['params']['subscriber']))
-        API.GivePoints(Data['params']['subscriber'], 25, (err) => {
-          if (err === '1 err' || err === false) log.warning('Failed to give', Data['params']['subscriber'], 'his/her points.')
-          else {
-            log.success(Data['params']['subscriber'], 'received his points for the subscription.')
-            Chat.Whisper(Data['params']['subscriber'], 'lamy o dziwo postanowiły ci dziękować za wsparcie streamera.')
-          }
+        API.SetSubscriber(Data['params']['subscriber'], (res) => {
+          log.success(Data['params']['subscriber'], 'received his bonuses for the subscription.')
+          Chat.Whisper(Data['params']['subscriber'], 'lamy o dziwo postanowiły ci dziękować za wsparcie streamera.')
         })
       }
     } else if (Data['method'] === 'chatMsg' || (Data['method'] === 'directMsg' && Chat.Data.Whispers)) {

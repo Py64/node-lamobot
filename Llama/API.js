@@ -66,12 +66,18 @@ class API {
     this.Call('/feed/panda/as/' + User, {comment: Ingredient}, Callback)
   }
 
-  // Gives points.
+  // Gives points and updates multiplier.
   // Uses Call function to communicate with API.
   // If bot has no SUPER flag, server will reject this request for insufficient permissions (3 wrong api key).
-  // Returns '0 success' or '1 err'.
-  GivePoints (User, Amount, Callback) {
-    this.Call('/addpoints', {user: User, points: Amount}, Callback, false)
+  // Returns actual points amount.
+  GivePoints (User, isSubscriber, Callback) {
+    this.Call('/user/update/' + User, {isSubscriber: isSubscriber}, Callback)
+  }
+
+  // Updates user as subscriber.
+  // Returns actual points amount.
+  SetSubscriber (User, Callback) {
+    this.Call('/user/update/' + User, {isNewSubscriber: true, isSubscriber: true}, Callback)
   }
 }
 
