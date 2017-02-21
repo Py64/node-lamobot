@@ -6,6 +6,7 @@ const Webhook = require('./Llama/Webhook.js')
 const HitboxAPI = require('./Hitbox/API.js')
 const log = require('node-logger')
 const config = require('./.lamobot.json')
+const tmi = require("tmi.js")
 const util = require('util')
 const chatarr = []
 const API = new LlamaAPI(config.API.Endpoint, config.API.Token)
@@ -23,7 +24,7 @@ async.forEach = (o, cb) => {
   next()
 }
 
-function Handle (Event, Data, Chat) {
+function HandleHitbox (Event, Data, Chat) {
   if (Event === '!_READY') {
     log.info('Opening a websocket connection for', Chat.Data.Channel)
     Chat.Connect()
@@ -203,18 +204,40 @@ function AuthTokenReceived (key, creds, next, token) {
         Whispers: creds['Whispers'],
         GiveawayPoints: false
       }
-      let chat = server.GetChat(Handle, Data)
+      let chat = server.GetChat(HandleHitbox, Data)
       chatarr.push(chat)
       next()
     })
   })
 }
 
+var twitchchatarr = []
+
 async.forEach(config.Channels, (key, next) => {
   let creds = config.Channels[key]
   Auth.GetToken(creds['User'], creds['Pass'], (token) => {
     AuthTokenReceived(key, creds, next, token)
   })
+})
+
+async.forEach(config.TwitchIdentities, (key, next) => {
+  let creds = config.TwitchIdentities[key]
+  var options = {
+    options: {
+        debug: true
+    },
+    connection: {
+        reconnect: true
+    },
+    identity: {
+        username: key,
+        password: creds['Token']
+    },
+    channels: ["#pyy_"]
+  }
+  const client = new tmi.client(options)
+  client.connect()
+  twitchchatarr.push(client)
 })
 
 function ForEachChat (Callback) {
@@ -224,7 +247,6 @@ function ForEachChat (Callback) {
 }
 
 function DisconnectAll () {
-  clearInterval(interval1)
   ForEachChat((chat, id) => {
     try {
       chat.Leave()
